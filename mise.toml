@@ -1,0 +1,33 @@
+[tools]
+node = "lts"
+# vp(Vite+ global CLI)は curl install:
+#   curl -fsSL https://vite.plus | bash
+# ~/.vite-plus/bin/vp に入る。mise 管理外なので PATH を通す。
+# vite-plus(per-project ライブラリ)は devDeps、`vp install` で入る。
+
+[env]
+_.path = ["~/.vite-plus/bin"]
+
+[tasks.dev]
+description = "Vite dev server"
+run = "vp dev"
+
+[tasks.build]
+description = "Production build → dist/"
+run = "vp build"
+
+[tasks.check]
+description = "fmt + lint + tsc(format は自動修正)"
+run = "vp check --fix"
+
+[tasks.lint]
+description = "Lint (Oxlint, type-aware)"
+run = "vp lint"
+
+[tasks.fmt]
+description = "Format (Oxfmt)"
+run = "vp fmt"
+
+[tasks.preview]
+description = "Preview built dist locally"
+run = "vp preview"
