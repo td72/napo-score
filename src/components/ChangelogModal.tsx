@@ -41,8 +41,8 @@ export function ChangelogModal({ onClose }: Props) {
 
         <div className="modal-body">
           <ul className="changelog">
-            {CHANGELOG.map((entry) => (
-              <li key={entry.date}>
+            {CHANGELOG.map((entry, idx) => (
+              <li key={`${entry.date}-${idx}`}>
                 <div className="changelog-head">
                   <span className="changelog-date">{entry.date}</span>
                   {entry.title && <span className="changelog-title">{entry.title}</span>}
