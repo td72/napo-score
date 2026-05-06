@@ -36,17 +36,18 @@ export function EditModal({ index, game, players, onSave, onDelete, onClose }: P
     setTimeout(onClose, 220);
   };
 
-  const handleSave = () => {
-    if (draft.declared < 13 || draft.declared > 20) return;
-    if (draft.taken < 0 || draft.taken > 20) return;
-    const safe: PendingEntry = {
-      ...draft,
-      aide: draft.aide === draft.napoleon ? -1 : draft.aide,
-    };
-    onSave(safe);
-  };
-
   const isFinal = index === SET_LENGTH - 1;
+  const canSave =
+    draft.aide !== -1 &&
+    draft.declared >= 13 &&
+    draft.declared <= 20 &&
+    draft.taken >= 0 &&
+    draft.taken <= 20;
+
+  const handleSave = () => {
+    if (!canSave) return;
+    onSave(draft);
+  };
 
   return (
     <div
@@ -81,7 +82,7 @@ export function EditModal({ index, game, players, onSave, onDelete, onClose }: P
           >
             削除
           </button>
-          <button className="btn" onClick={handleSave}>
+          <button className="btn" onClick={handleSave} disabled={!canSave}>
             保存
           </button>
         </div>

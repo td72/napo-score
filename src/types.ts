@@ -9,7 +9,11 @@ export interface SuitDef {
 
 export interface PendingEntry {
   napoleon: number;
-  /** -1 means no aide (solo). */
+  /**
+   * Aide player index (0–4).
+   * - `aide === napoleon`: 独り立ち (solo, no aide).
+   * - `-1`: 未指定 (only valid in pending state — committed games never carry -1).
+   */
   aide: number;
   suit: SuitCode;
   declared: number;

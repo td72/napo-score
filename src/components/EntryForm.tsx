@@ -16,15 +16,21 @@ export function EntryForm({ value, players, isFinal, onChange }: Props) {
   const set = <K extends keyof PendingEntry>(k: K, v: PendingEntry[K]) =>
     onChange({ ...value, [k]: v });
 
+  const isUnspecified = value.aide === -1;
+  const isSolo = !isUnspecified && value.aide === value.napoleon;
   const napName = players[value.napoleon] || `Player ${value.napoleon + 1}`;
-  const aideName = value.aide === -1 ? "（副官なし）" : `副官: ${players[value.aide] || ""}`;
   const eff = value.multiplier * (isFinal ? 2 : 1);
   const base = Math.max(1, value.declared - 12) * eff;
   const allTakenLoss = value.taken >= 20 && value.declared < 20;
   const won = value.taken >= value.declared && !allTakenLoss;
   const verdict = won ? "勝ち" : "負け";
-  const sideLabel = value.aide === -1 ? "連合4人 各" : "連合3人 各";
-  const napAmount = base * (value.aide === -1 ? 4 : 2);
+  const sideLabel = isSolo ? "連合4人 各" : "連合3人 各";
+  const napAmount = base * (isSolo ? 4 : 2);
+  const aideLine = isUnspecified
+    ? "副官: 未指定"
+    : isSolo
+      ? "（独り立ち）"
+      : `副官: ${players[value.aide] || ""}`;
 
   return (
     <>
@@ -44,14 +50,14 @@ export function EntryForm({ value, players, isFinal, onChange }: Props) {
         </div>
         <div>
           <span className="field">Aide · 副官</span>
-          <select
-            value={value.aide}
-            onChange={(e) => set("aide", parseInt(e.target.value, 10))}
-          >
-            <option value={-1}>— なし(自分1人)</option>
+          <select value={value.aide} onChange={(e) => set("aide", parseInt(e.target.value, 10))}>
+            <option value={-1} disabled hidden>
+              — 未指定
+            </option>
             {players.map((n, i) => (
               <option key={i} value={i}>
                 {n}
+                {i === value.napoleon ? "（独り立ち）" : ""}
               </option>
             ))}
           </select>
@@ -61,10 +67,7 @@ export function EntryForm({ value, players, isFinal, onChange }: Props) {
       <div className="row" style={{ gridTemplateColumns: "1fr" }}>
         <div>
           <span className="field">Suit · 切札</span>
-          <select
-            value={value.suit}
-            onChange={(e) => set("suit", e.target.value as SuitCode)}
-          >
+          <select value={value.suit} onChange={(e) => set("suit", e.target.value as SuitCode)}>
             {SUITS.map((s) => (
               <option key={s.v} value={s.v}>
                 {s.sym} {s.label}
@@ -114,16 +117,24 @@ export function EntryForm({ value, players, isFinal, onChange }: Props) {
       <div className="helper">
         基本点 = (宣言 {value.declared} − 12) × {eff} = <b>{base}</b>
         <br />
-        宣言 <b>{value.declared}</b> · 獲得 <b>{value.taken}</b> · {aideName}
+        宣言 <b>{value.declared}</b> · 獲得 <b>{value.taken}</b> · {aideLine}
         <br />
-        <span className="accent">{verdict}</span>:{" "}
-        {won ? (
-          <>
-            {napName}側 +{napAmount}, 副官 +{base}, {sideLabel} −{base}
-          </>
+        {isUnspecified ? (
+          <span className="accent">⚠ 副官を選択してください</span>
         ) : (
           <>
-            {napName}側 −{napAmount}, 副官 −{base}, {sideLabel} +{base}
+            <span className="accent">{verdict}</span>:{" "}
+            {won ? (
+              <>
+                {napName}側 +{napAmount}
+                {!isSolo && <>, 副官 +{base}</>}, {sideLabel} −{base}
+              </>
+            ) : (
+              <>
+                {napName}側 −{napAmount}
+                {!isSolo && <>, 副官 −{base}</>}, {sideLabel} +{base}
+              </>
+            )}
           </>
         )}
         {allTakenLoss && (

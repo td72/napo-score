@@ -5,15 +5,16 @@ import { calcScores } from "./score";
  * Encode the full set state into a URL-safe Base64 string.
  * Format (compact, ~100 chars for a full 10-game set):
  *   <player1>|<player2>|...|<player5>~<g1>;<g2>;...
- *   where each game = napoleon,aide(or X),suit,declared,taken,multiplier
+ *   where each game = napoleon,aide,suit,declared,taken,multiplier
+ *   (`aide === napoleon` represents 独り立ち; legacy "X" still decoded for
+ *   backward compatibility with previously-shared URLs.)
  */
 export function encodeState(state: State): string {
   const players = state.players.join("|");
   const games = state.games
     .map((g) => {
-      const aide = g.aide === -1 ? "X" : g.aide;
       const m = g.multiplier || 1;
-      return `${g.napoleon},${aide},${g.suit},${g.declared},${g.taken},${m}`;
+      return `${g.napoleon},${g.aide},${g.suit},${g.declared},${g.taken},${m}`;
     })
     .join(";");
   const raw = `${players}~${games}`;
@@ -36,9 +37,12 @@ export function decodeState(hash: string): State | null {
       .filter(Boolean)
       .map((s, idx) => {
         const [n, a, suit, d, t, m] = s.split(",");
+        const napoleon = parseInt(n, 10);
+        // Legacy "X" → 独り立ち (now stored as aide === napoleon).
+        const aide = a === "X" ? napoleon : parseInt(a, 10);
         const base = {
-          napoleon: parseInt(n, 10),
-          aide: a === "X" ? -1 : parseInt(a, 10),
+          napoleon,
+          aide,
           suit: suit as SuitCode,
           declared: parseInt(d, 10),
           taken: parseInt(t, 10),

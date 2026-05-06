@@ -41,6 +41,10 @@ export function Game({ state, setState, onReset, showToast }: Props) {
   }, [justAddedIdx]);
 
   const commitEntry = () => {
+    if (pending.aide === -1) {
+      showToast("副官を選択してください");
+      return;
+    }
     if (pending.declared < 13 || pending.declared > 20) {
       showToast("宣言数は 13〜20");
       return;
@@ -49,12 +53,8 @@ export function Game({ state, setState, onReset, showToast }: Props) {
       showToast("獲得数が異常です");
       return;
     }
-    const safe: PendingEntry = {
-      ...pending,
-      aide: pending.aide === pending.napoleon ? -1 : pending.aide,
-    };
     const newIdx = state.games.length;
-    const game: GameEntry = { ...safe, scores: calcScores(safe, newIdx) };
+    const game: GameEntry = { ...pending, scores: calcScores(pending, newIdx) };
     setState({ ...state, games: [...state.games, game] });
     setPending(freshPending());
     setJustAddedIdx(newIdx);
@@ -332,7 +332,7 @@ function LedgerRow({
   void _eff;
   const suit = SUITS.find((s) => s.v === g.suit)!;
   const napName = players[g.napoleon];
-  const aideName = g.aide === -1 ? null : players[g.aide];
+  const aideName = g.aide === -1 || g.aide === g.napoleon ? null : players[g.aide];
 
   const inner: ReactNode = (
     <div className={`lrow${justAdded ? " just-added" : ""}`} onClick={onTap}>
