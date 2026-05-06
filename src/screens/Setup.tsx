@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { type State } from "../types";
 import { decodeState, extractCode } from "../lib/encode";
+import { loadHistory } from "../lib/playerHistory";
 
 const SEAT_LABELS = ["I", "II", "III", "IV", "V"] as const;
+const HISTORY_LIST_ID = "napo-player-history";
 
 interface Props {
   state: State;
@@ -14,6 +16,8 @@ interface Props {
 
 export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: Props) {
   const [restoreInput, setRestoreInput] = useState("");
+  // Read history once per Setup mount — fresh enough since this screen is short-lived.
+  const history = useMemo(loadHistory, []);
 
   const tryRestore = () => {
     const decoded = decodeState(extractCode(restoreInput));
@@ -37,14 +41,24 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: 
               <span className="seat">{SEAT_LABELS[i]}</span>
               <input
                 type="text"
+                name={`player-${i + 1}`}
                 value={name}
                 placeholder={`Player ${i + 1}`}
                 maxLength={12}
+                autoComplete="off"
+                list={HISTORY_LIST_ID}
                 onChange={(e) => onPlayerChange(i, e.target.value)}
               />
             </div>
           ))}
         </div>
+        {history.length > 0 && (
+          <datalist id={HISTORY_LIST_ID}>
+            {history.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
+        )}
       </div>
 
       <div className="sec-head">

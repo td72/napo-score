@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { type State, emptyState } from "./types";
 import { load, save, clear } from "./lib/persistence";
 import { decodeState, extractCode } from "./lib/encode";
+import { addToHistory } from "./lib/playerHistory";
 import { SET_LENGTH } from "./types";
 import { Setup } from "./screens/Setup";
 import { Game } from "./screens/Game";
@@ -13,6 +14,7 @@ function bootState(): State {
   if (hash && hash.length > 1) {
     const decoded = decodeState(extractCode(hash));
     if (decoded) {
+      addToHistory(decoded.players);
       history.replaceState(null, "", location.pathname + location.search);
       return decoded;
     }
@@ -37,8 +39,14 @@ function App() {
 
   const startSet = () => {
     const players = state.players.map((n, i) => n.trim() || `Player ${i + 1}`) as State["players"];
+    addToHistory(state.players);
     history.replaceState(null, "", location.pathname + location.search);
     setState({ players, games: [], started: true });
+  };
+
+  const restoreFromCode = (next: State) => {
+    addToHistory(next.players);
+    setState(next);
   };
 
   const reset = () => {
@@ -72,7 +80,7 @@ function App() {
           state={state}
           onPlayerChange={updatePlayer}
           onStart={startSet}
-          onRestore={setState}
+          onRestore={restoreFromCode}
           showToast={show}
         />
       )}
