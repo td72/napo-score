@@ -38,8 +38,9 @@ function App() {
   };
 
   const startSet = () => {
-    const players = state.players.map((n, i) => n.trim() || `Player ${i + 1}`) as State["players"];
-    addToHistory(state.players);
+    const players = state.players.map((n) => n.trim()) as State["players"];
+    if (players.some((n) => !n)) return;
+    addToHistory(players);
     history.replaceState(null, "", location.pathname + location.search);
     setState({ players, games: [], started: true });
   };

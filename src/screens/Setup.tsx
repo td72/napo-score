@@ -18,6 +18,7 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: 
   const [restoreInput, setRestoreInput] = useState("");
   // Read history once per Setup mount — fresh enough since this screen is short-lived.
   const history = useMemo(loadHistory, []);
+  const canStart = state.players.every((n) => n.trim() !== "");
 
   const tryRestore = () => {
     const decoded = decodeState(extractCode(restoreInput));
@@ -78,7 +79,7 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: 
       </div>
 
       <div className="btn-row">
-        <button className="btn" onClick={onStart}>
+        <button className="btn" onClick={onStart} disabled={!canStart}>
           はじめる →
         </button>
         <button className="btn ghost" onClick={tryRestore}>
