@@ -7,6 +7,7 @@ import { SET_LENGTH } from "./types";
 import { Setup } from "./screens/Setup";
 import { Game } from "./screens/Game";
 import { Toast } from "./components/Toast";
+import { ChangelogModal } from "./components/ChangelogModal";
 import { useToast } from "./lib/useToast";
 
 function bootState(): State {
@@ -24,6 +25,7 @@ function bootState(): State {
 
 function App() {
   const [state, _setState] = useState<State>(bootState);
+  const [changelogOpen, setChangelogOpen] = useState(false);
   const { message, show } = useToast();
 
   const setState = (next: State) => {
@@ -87,11 +89,16 @@ function App() {
       )}
       <footer>
         ナポスコア ·{" "}
+        <button type="button" className="footer-link" onClick={() => setChangelogOpen(true)}>
+          更新履歴
+        </button>
+        {" · "}
         <a href="https://github.com/td72/napo-score" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
       </footer>
       <Toast message={message} />
+      {changelogOpen && <ChangelogModal onClose={() => setChangelogOpen(false)} />}
     </div>
   );
 }
