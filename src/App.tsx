@@ -70,7 +70,7 @@ function App() {
       <header className="h">
         <div className="brand">
           <span className="mark">N°</span>
-          <h1>ナポレオン 記録帳</h1>
+          <h1>ナポスコア</h1>
         </div>
         <div className="progress" dangerouslySetInnerHTML={{ __html: progress }} />
       </header>

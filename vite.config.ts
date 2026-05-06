@@ -125,7 +125,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icon-192.svg", "icon-512.svg"],
       manifest: {
-        name: "ナポレオン 記録帳",
+        name: "ナポスコア",
         short_name: "Napo",
         description: "5人ナポレオン専用のスコアシート",
         start_url: "./",
