@@ -21,7 +21,19 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, onLoadArchive
   const [restoreInput, setRestoreInput] = useState("");
   const [archived, setArchived] = useState(loadArchive);
   const history = useMemo(loadHistory, []);
-  const canStart = state.players.every((n) => n.trim() !== "");
+  const trimmed = state.players.map((n) => n.trim());
+  const allFilled = trimmed.every((n) => n !== "");
+  const dupSet = (() => {
+    const counts = new Map<string, number>();
+    for (const n of trimmed) {
+      if (!n) continue;
+      const k = n.toLowerCase();
+      counts.set(k, (counts.get(k) ?? 0) + 1);
+    }
+    return new Set([...counts].filter(([, c]) => c > 1).map(([k]) => k));
+  })();
+  const hasDup = dupSet.size > 0;
+  const canStart = allFilled && !hasDup;
 
   const tryRestore = () => {
     const decoded = decodeState(extractCode(restoreInput));
@@ -45,21 +57,24 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, onLoadArchive
       </div>
       <div className="card">
         <div className="players-setup">
-          {state.players.map((name, i) => (
-            <div key={i} className="player-input">
-              <span className="seat">{SEAT_LABELS[i]}</span>
-              <input
-                type="text"
-                name={`player-${i + 1}`}
-                value={name}
-                placeholder={`Player ${i + 1}`}
-                maxLength={12}
-                autoComplete="off"
-                list={HISTORY_LIST_ID}
-                onChange={(e) => onPlayerChange(i, e.target.value)}
-              />
-            </div>
-          ))}
+          {state.players.map((name, i) => {
+            const isDup = !!trimmed[i] && dupSet.has(trimmed[i].toLowerCase());
+            return (
+              <div key={i} className={`player-input${isDup ? " dup" : ""}`}>
+                <span className="seat">{SEAT_LABELS[i]}</span>
+                <input
+                  type="text"
+                  name={`player-${i + 1}`}
+                  value={name}
+                  placeholder={`Player ${i + 1}`}
+                  maxLength={12}
+                  autoComplete="off"
+                  list={HISTORY_LIST_ID}
+                  onChange={(e) => onPlayerChange(i, e.target.value)}
+                />
+              </div>
+            );
+          })}
         </div>
         {history.length > 0 && (
           <datalist id={HISTORY_LIST_ID}>
@@ -68,6 +83,7 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, onLoadArchive
             ))}
           </datalist>
         )}
+        {hasDup && <div className="helper accent">名前が重複しています</div>}
       </div>
 
       <div className="sec-head">

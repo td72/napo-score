@@ -449,6 +449,8 @@ input::placeholder { color: var(--ink-4); }
   font-size: 15px;
 }
 .player-input input:focus { background: var(--tint); border-color: transparent; }
+.player-input.dup input { background: var(--accent-tint); }
+.helper.accent { color: var(--accent); }
 
 /* ===== Records ===== */
 .records {
