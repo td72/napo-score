@@ -33,7 +33,7 @@ export function Game({ state, setState, onReset, showToast }: Props) {
   useEffect(() => {
     if (justAddedIdx == null) return;
     const t = setTimeout(() => {
-      const el = document.querySelector(".lswipe.just-added");
+      const el = document.querySelector(".record-swipe.just-added");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
       setJustAddedIdx(null);
     }, 50);
@@ -131,10 +131,10 @@ export function Game({ state, setState, onReset, showToast }: Props) {
       )}
 
       <SectionHead
-        label="Ledger · 記録"
+        label="記録"
         meta={state.games.length > 0 ? `tap to edit · Σ = ${sumAll}` : "まだ無し"}
       />
-      <Ledger
+      <Records
         state={state}
         totals={totals}
         justAddedIdx={justAddedIdx}
@@ -245,7 +245,7 @@ function FinalPodium({ players, totals }: { players: readonly string[]; totals: 
   );
 }
 
-function Ledger({
+function Records({
   state,
   totals,
   justAddedIdx,
@@ -259,8 +259,8 @@ function Ledger({
   onSwipeDeleteLast: () => void;
 }) {
   return (
-    <div className="ledger">
-      <div className="lhead">
+    <div className="records">
+      <div className="records-head">
         <span>#</span>
         <div className="pn-row">
           {state.players.map((n, i) => (
@@ -279,7 +279,7 @@ function Ledger({
           const canDelete = isLast && state.games.length < SET_LENGTH;
           const justAdded = i === justAddedIdx;
           return (
-            <LedgerRow
+            <RecordRow
               key={i}
               g={g}
               i={i}
@@ -293,7 +293,7 @@ function Ledger({
         })
       )}
 
-      <div className="ltot">
+      <div className="records-total">
         <span className="lab">Σ</span>
         <div className="pn-scores">
           {totals.map((s, i) => (
@@ -307,7 +307,7 @@ function Ledger({
   );
 }
 
-function LedgerRow({
+function RecordRow({
   g,
   i,
   players,
@@ -335,7 +335,7 @@ function LedgerRow({
   const aideName = g.aide === -1 || g.aide === g.napoleon ? null : players[g.aide];
 
   const inner: ReactNode = (
-    <div className={`lrow${justAdded ? " just-added" : ""}`} onClick={onTap}>
+    <div className={`record-row${justAdded ? " just-added" : ""}`} onClick={onTap}>
       <span className="gn">{String(i + 1).padStart(2, "0")}</span>
       <div className="body">
         <div className="desc">
@@ -397,8 +397,8 @@ function LedgerRow({
     );
   }
   return (
-    <div className={`lswipe${justAdded ? " just-added" : ""}`}>
-      <div className="lswipe-fg">{inner}</div>
+    <div className={`record-swipe${justAdded ? " just-added" : ""}`}>
+      <div className="record-swipe-fg">{inner}</div>
     </div>
   );
 }

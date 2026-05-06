@@ -85,7 +85,12 @@ function App() {
           showToast={show}
         />
       )}
-      <footer>napoleon ledger · v.2 · stationery</footer>
+      <footer>
+        ナポスコア ·{" "}
+        <a href="https://github.com/td72/napo-score" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </footer>
       <Toast message={message} />
     </div>
   );

@@ -114,9 +114,9 @@ export function SwipeRow({ onDelete, background, children }: Props) {
   }, []);
 
   return (
-    <div ref={wrapRef} className="lswipe">
-      <div className="lswipe-bg">{background}</div>
-      <div ref={fgRef} className="lswipe-fg">
+    <div ref={wrapRef} className="record-swipe">
+      <div className="record-swipe-bg">{background}</div>
+      <div ref={fgRef} className="record-swipe-fg">
         {children}
       </div>
     </div>

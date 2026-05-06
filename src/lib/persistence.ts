@@ -1,6 +1,6 @@
 import { type State, emptyState } from "../types";
 
-const STATE_KEY = "napoleon-ledger-v2";
+const STATE_KEY = "napo-score-state";
 
 export function save(state: State): void {
   try {
