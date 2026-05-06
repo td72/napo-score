@@ -4,7 +4,7 @@ const STATE_KEY = "napo-score-state";
 
 export function save(state: State): void {
   try {
-    sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+    localStorage.setItem(STATE_KEY, JSON.stringify(state));
   } catch {
     /* quota / private mode — ignore */
   }
@@ -12,7 +12,7 @@ export function save(state: State): void {
 
 export function load(): State {
   try {
-    const raw = sessionStorage.getItem(STATE_KEY);
+    const raw = localStorage.getItem(STATE_KEY);
     if (!raw) return emptyState();
     const parsed = JSON.parse(raw) as Partial<State>;
     return { ...emptyState(), ...parsed } as State;
@@ -23,7 +23,7 @@ export function load(): State {
 
 export function clear(): void {
   try {
-    sessionStorage.removeItem(STATE_KEY);
+    localStorage.removeItem(STATE_KEY);
   } catch {
     /* ignore */
   }

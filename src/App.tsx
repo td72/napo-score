@@ -3,6 +3,7 @@ import { type State, emptyState } from "./types";
 import { load, save, clear } from "./lib/persistence";
 import { decodeState, extractCode } from "./lib/encode";
 import { addToHistory } from "./lib/playerHistory";
+import { archive, removeArchive, type ArchivedSet } from "./lib/history";
 import { SET_LENGTH } from "./types";
 import { Setup } from "./screens/Setup";
 import { Game } from "./screens/Game";
@@ -11,16 +12,19 @@ import { ChangelogModal } from "./components/ChangelogModal";
 import { useToast } from "./lib/useToast";
 
 function bootState(): State {
+  const stored = load();
   const hash = location.hash;
   if (hash && hash.length > 1) {
     const decoded = decodeState(extractCode(hash));
     if (decoded) {
+      // URL hash replaces whatever was saved. Preserve the previous set in archive.
+      archive(stored);
       addToHistory(decoded.players);
       history.replaceState(null, "", location.pathname + location.search);
       return decoded;
     }
   }
-  return load();
+  return stored;
 }
 
 function App() {
@@ -53,9 +57,16 @@ function App() {
   };
 
   const reset = () => {
+    archive(state);
     clear();
     history.replaceState(null, "", location.pathname + location.search);
     _setState(emptyState());
+  };
+
+  const loadArchived = (entry: ArchivedSet) => {
+    archive(state);
+    removeArchive(entry.id);
+    setState(entry.state);
   };
 
   /* Header progress indicator */
@@ -84,6 +95,7 @@ function App() {
           onPlayerChange={updatePlayer}
           onStart={startSet}
           onRestore={restoreFromCode}
+          onLoadArchived={loadArchived}
           showToast={show}
         />
       )}

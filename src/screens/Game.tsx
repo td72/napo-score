@@ -92,7 +92,7 @@ export function Game({ state, setState, onReset, showToast }: Props) {
   };
 
   const newSet = () => {
-    if (!confirm("セットを破棄して最初の画面に戻りますか?")) return;
+    if (!confirm("現在のセットを履歴に保存して、最初の画面に戻りますか?")) return;
     onReset();
   };
 

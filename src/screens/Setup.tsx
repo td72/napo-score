@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
-import { type State } from "../types";
+import { type State, SET_LENGTH } from "../types";
 import { decodeState, extractCode } from "../lib/encode";
 import { loadHistory } from "../lib/playerHistory";
+import { type ArchivedSet, loadArchive, removeArchive } from "../lib/history";
+import { totalScores } from "../lib/score";
 
 const SEAT_LABELS = ["I", "II", "III", "IV", "V"] as const;
 const HISTORY_LIST_ID = "napo-player-history";
@@ -11,12 +13,13 @@ interface Props {
   onPlayerChange: (i: number, name: string) => void;
   onStart: () => void;
   onRestore: (state: State) => void;
+  onLoadArchived: (entry: ArchivedSet) => void;
   showToast: (msg: string) => void;
 }
 
-export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: Props) {
+export function Setup({ state, onPlayerChange, onStart, onRestore, onLoadArchived, showToast }: Props) {
   const [restoreInput, setRestoreInput] = useState("");
-  // Read history once per Setup mount — fresh enough since this screen is short-lived.
+  const [archived, setArchived] = useState(loadArchive);
   const history = useMemo(loadHistory, []);
   const canStart = state.players.every((n) => n.trim() !== "");
 
@@ -27,6 +30,11 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: 
       return;
     }
     onRestore(decoded);
+  };
+
+  const deleteEntry = (id: string) => {
+    removeArchive(id);
+    setArchived(loadArchive());
   };
 
   return (
@@ -86,6 +94,75 @@ export function Setup({ state, onPlayerChange, onStart, onRestore, showToast }: 
           復元
         </button>
       </div>
+
+      {archived.length > 0 && (
+        <>
+          <div className="sec-head">
+            <span className="label">過去のセット</span>
+            <span className="meta">{archived.length}件</span>
+          </div>
+          <div className="card">
+            <ul className="archive-list">
+              {archived.map((entry) => (
+                <ArchiveRow
+                  key={entry.id}
+                  entry={entry}
+                  onOpen={() => onLoadArchived(entry)}
+                  onDelete={() => deleteEntry(entry.id)}
+                />
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
+}
+
+function ArchiveRow({
+  entry,
+  onOpen,
+  onDelete,
+}: {
+  entry: ArchivedSet;
+  onOpen: () => void;
+  onDelete: () => void;
+}) {
+  const totals = totalScores(entry.state);
+  let topIdx = 0;
+  for (let i = 1; i < 5; i++) if (totals[i] > totals[topIdx]) topIdx = i;
+  const topName = entry.state.players[topIdx];
+  const topScore = totals[topIdx];
+  const sign = topScore > 0 ? "+" : "";
+  const games = entry.state.games.length;
+  const isComplete = games >= SET_LENGTH;
+
+  return (
+    <li className="archive-row">
+      <button className="archive-open" onClick={onOpen}>
+        <span className="archive-when">{formatDate(entry.archivedAt)}</span>
+        <span className="archive-summary">
+          {topName} {sign}
+          {topScore} · {games}ゲーム{isComplete ? "" : "（途中）"}
+        </span>
+      </button>
+      <button
+        className="archive-del"
+        onClick={onDelete}
+        aria-label="削除"
+        title="削除"
+      >
+        ×
+      </button>
+    </li>
+  );
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${m}/${day} ${h}:${min}`;
 }

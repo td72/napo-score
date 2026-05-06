@@ -858,6 +858,49 @@ footer .footer-link {
 footer a:hover,
 footer .footer-link:hover { color: var(--ink-3); }
 
+/* ===== Archive list (Setup) ===== */
+.archive-list { list-style: none; margin: 0; padding: 0; }
+.archive-list > li + li { border-top: 1px solid var(--line); }
+.archive-row {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.archive-open {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: inherit;
+  color: var(--ink);
+}
+.archive-open:active { background: var(--tint); }
+.archive-when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.archive-summary {
+  font-size: 13px;
+  color: var(--ink);
+}
+.archive-del {
+  background: none;
+  border: none;
+  width: 32px;
+  font-size: 18px;
+  color: var(--ink-3);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.archive-del:active { color: var(--accent); background: var(--accent-tint); border-radius: 6px; }
+
 /* ===== Changelog modal body ===== */
 .changelog { list-style: none; padding: 0; margin: 0; }
 .changelog > li { margin-bottom: 18px; }
